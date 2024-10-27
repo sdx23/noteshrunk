@@ -569,10 +569,14 @@ def apply_color_palette(image, color_palette, kmeans_model, args, idx):
             threshold_value=args.threshold_value)
 
     if args.skip_empty:
-        Y, X = shape
+        if len(shape) == 3:
+            Y, X, _ = shape
+        else:
+            Y, X = shape
+
         # subtract a small safety margin
         delta = int(round(X * .06, 0))
-        coverage = 1000 * foreground_mask.reshape(shape)[delta:Y-delta, delta:X-delta].mean()
+        coverage = 1000 * foreground_mask.reshape((X,Y,1))[delta:Y-delta, delta:X-delta].mean()
 
         if coverage <= args.threshold_empty:
             logging.info('Removing page {} with coverage of {} (<= {}) ‰.'.format(idx, round(coverage, 1), args.threshold_empty))
